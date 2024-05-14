@@ -15,8 +15,8 @@ Route::get('/user', function (Request $request) {
   return $request->user();
 })->middleware('auth:sanctum');
 
+Route::post('/login', LoginController::class);
 Route::middleware('auth:sanctum')->group(function () {
-  // Route::post('/logout', LogoutController::class);
 
   // Admin routes
   // Route::post('/admin/send-invitation/{invitation}', [InvitationController::class, 'sendInvitation']);
@@ -24,11 +24,11 @@ Route::middleware('auth:sanctum')->group(function () {
   // Route::post('/admin/invitations/{invitation}/approve', [InvitationController::class, 'approve']);
   // Route::post('/admin/invitations/{invitation}/decline', [InvitationController::class, 'decline']);
 
+  Route::post('/logout', LogoutController::class);
   Route::apiResource('users', UserController::class)->except('index', 'show');
   Route::apiResource('projects', ProjectController::class)->except('index', 'show');
   Route::apiResource('skills', SkillController::class)->except('index', 'show');
   Route::apiResource('categories', CategoryController::class)->except('index', 'show');
-  Route::post('/login', LoginController::class);
 });
 
 // All these routes and the methods they call are outside the middleware group, so they're accessible without authentication
