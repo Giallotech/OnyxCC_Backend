@@ -23,7 +23,6 @@ class User extends Authenticatable {
     'username',
     'name',
     'email',
-    'profile_picture_path',
     'password',
     'role',
     'description',
