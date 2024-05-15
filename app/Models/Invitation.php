@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Invitation extends Model {
   use HasFactory;
 
-  protected $fillable = ['email', 'token', 'accepted_at'];
+  protected $fillable = [
+    'email',
+    'token',
+    'requested_by_user_id',
+    'approved_by_user_id',
+    'status',
+    'accepted_at',
+  ];
 
   public function requestedByUser() {
     return $this->belongsTo(User::class, 'requested_by_user_id');

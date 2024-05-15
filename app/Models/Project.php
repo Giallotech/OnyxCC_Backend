@@ -13,11 +13,13 @@ class Project extends Model {
   use HasFactory;
 
   protected $fillable = [
+    'cover_picture_path',
+    'executable_file_path',
+    'video_preview_path',
     'name',
     'description',
     'user_id',
-    'cover_picture_path',
-    'skill_id'
+    'skill_id',
   ];
 
   // Relationship between the Project model and the User model
