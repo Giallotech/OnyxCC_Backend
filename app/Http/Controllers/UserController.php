@@ -33,6 +33,25 @@ class UserController extends Controller {
       return response()->json(['message' => 'You are not authorized to update this user!'], Response::HTTP_FORBIDDEN);
     }
 
+    $oldImageUrl = $user->profile_picture;
+
+    if ($oldImageUrl) {
+      // If the image path is a URL, extract the image name
+      if (filter_var($oldImageUrl, FILTER_VALIDATE_URL)) {
+        $oldImageName = basename($oldImageUrl);
+      }
+
+      if (app()->environment('production')) {
+        // Delete the old image from the S3 bucket
+        $oldImagePath = 'profile_picture/' . $oldImageName;
+        Storage::disk('s3')->delete($oldImagePath);
+      } else {
+        // Delete the old image from local storage
+        $oldImagePath = 'profile_picture/' . $oldImageName;
+        Storage::disk('public')->delete($oldImagePath);
+      }
+    }
+
     $validatedData = $request->validate([
       'name' => 'sometimes|required|string|max:255',
       'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
