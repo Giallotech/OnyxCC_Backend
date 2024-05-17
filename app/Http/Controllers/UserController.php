@@ -37,7 +37,20 @@ class UserController extends Controller {
       'skills' => 'sometimes|required|array',
     ]);
 
-    // dd($request->all());
+    // Remove 'categories' and 'skills' from the validated data. If I don't do this, the 'categories' and 'skills' fields will be updated in the users table, which is not what we want, because they are stored in the pivot tables and not in the users table.
+    $categories = $validatedData['categories'];
+    $skills = $validatedData['skills'];
+
+    unset($validatedData['categories'], $validatedData['skills']);
+
+    // Update the user's name, email, and description
+    foreach ($validatedData as $key => $value) {
+
+      // This code makes sure that only the fields that are present in the validated data are updated
+      if ($request->has($key)) {
+        $user->{$key} = $value;
+      }
+    }
 
     // Handle the profile picture upload
     if ($request->hasFile('profile_picture')) {
@@ -60,19 +73,6 @@ class UserController extends Controller {
 
       // Save the URL of the image to the user's profile
       $user->profile_picture = $imageUrl;
-    }
-
-    // Remove 'categories' and 'skills' from the validated data
-    $categories = $validatedData['categories'];
-    $skills = $validatedData['skills'];
-
-    unset($validatedData['categories'], $validatedData['skills']);
-
-    // Update the user's name, email, and description
-    foreach ($validatedData as $key => $value) {
-      if ($key !== 'profile_picture' && $request->has($key)) {
-        $user->{$key} = $value;
-      }
     }
 
     // Sync the user's categories and skills if they are present in the validated data
