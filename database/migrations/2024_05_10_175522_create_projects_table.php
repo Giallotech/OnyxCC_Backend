@@ -11,9 +11,9 @@ return new class extends Migration {
   public function up(): void {
     Schema::create('projects', function (Blueprint $table) {
       $table->id();
-      $table->string('cover_picture_path');
-      $table->string('executable_file_path')->nullable();
-      $table->string('video_preview_path')->nullable();
+      $table->string('cover_picture');
+      $table->string('executable_file')->nullable();
+      $table->string('video_preview')->nullable();
       $table->string('name');
       $table->text('description');
       $table->foreignId('user_id')->constrained();

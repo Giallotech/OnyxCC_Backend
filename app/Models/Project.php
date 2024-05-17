@@ -13,9 +13,9 @@ class Project extends Model {
   use HasFactory;
 
   protected $fillable = [
-    'cover_picture_path',
-    'executable_file_path',
-    'video_preview_path',
+    'cover_picture',
+    'executable_file',
+    'video_preview',
     'name',
     'description',
     'user_id',

@@ -4,12 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\SkillController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\InvitationController;
+// use App\Http\Controllers\CategoryController;
+// use App\Http\Controllers\SkillController;
 
 Route::get('/user', function (Request $request) {
   return $request->user();
@@ -24,9 +24,12 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::delete('/admin/invitations/{invitation}/decline', [InvitationController::class, 'decline']);
   Route::post('/logout', LogoutController::class);
   Route::apiResource('users', UserController::class)->except('index', 'show');
+
+  // I am using the POST method to update a user's information because some browsers don't support the PUT method. I'll include the _method field in the request body to tell Laravel to treat the request as a PUT request.
+  Route::post('/users/{user}', [UserController::class, 'update']);
   Route::apiResource('projects', ProjectController::class)->except('index', 'show');
-  Route::apiResource('skills', SkillController::class)->except('index', 'show');
-  Route::apiResource('categories', CategoryController::class)->except('index', 'show');
+  // Route::apiResource('categories', CategoryController::class)->except('index', 'show');
+  // Route::apiResource('skills', SkillController::class)->except('index', 'show');
 });
 
 // All these routes and the methods they call are outside the middleware group, so they're accessible without authentication
@@ -39,8 +42,7 @@ Route::get('/users/{user}', [UserController::class, 'show']);
 Route::get('/projects', [ProjectController::class, 'index']);
 Route::get('/projects/{project}', [ProjectController::class, 'show']);
 
-Route::get('/skills', [SkillController::class, 'index']);
-Route::get('/skills/{skill}', [SkillController::class, 'show']);
-
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{category}', [CategoryController::class, 'show']);
+// Route::get('/categories', [CategoryController::class, 'index']);
+// Route::get('/categories/{category}', [CategoryController::class, 'show']);
+// Route::get('/skills', [SkillController::class, 'index']);
+// Route::get('/skills/{skill}', [SkillController::class, 'show']);

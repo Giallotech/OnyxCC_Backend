@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
   )
   ->withMiddleware(function (Middleware $middleware) {
     $middleware->statefulApi();
+
+    // add the StartSession middleware to the 'api' middleware group
+    $middleware->api(['\Illuminate\Session\Middleware\StartSession']);
   })
   ->withExceptions(function (Exceptions $exceptions) {
     //
