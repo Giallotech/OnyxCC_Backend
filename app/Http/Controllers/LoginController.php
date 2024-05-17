@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Response;
 
 class LoginController extends Controller {
   public function __invoke(Request $request) {
@@ -17,10 +18,10 @@ class LoginController extends Controller {
     if (!Auth::guard('web')->attempt($credentials)) {
       return response()->json([
         'message' => 'Invalid credentials'
-      ], 401);
+      ], Response::HTTP_UNAUTHORIZED);
     }
 
     $request->session()->regenerate();
-    return response()->json(status: 204);
+    return response()->json(status: Response::HTTP_NO_CONTENT);
   }
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Response;
 
 class InvitationController extends Controller {
   public function store(Request $request) {
@@ -28,7 +29,7 @@ class InvitationController extends Controller {
     $invitation->status = 'pending';
     $invitation->save();
 
-    return $invitation;
+    return response($invitation, Response::HTTP_CREATED);
   }
 
   public function approveAndSend(Invitation $invitation) {
@@ -36,7 +37,7 @@ class InvitationController extends Controller {
     if ($invitation->status === 'approved') {
       return response()->json([
         'message' => 'This invitation is already approved.',
-      ], 400);
+      ], Response::HTTP_BAD_REQUEST);
     }
 
     // Approve the invitation.
@@ -53,7 +54,7 @@ class InvitationController extends Controller {
         ->subject('You are invited!');
     });
 
-    return response()->json(['message' => 'Invitation approved and sent!']);
+    return response()->json(['message' => 'Invitation approved and sent!'], Response::HTTP_OK);
   }
 
 
@@ -67,11 +68,11 @@ class InvitationController extends Controller {
     // Delete the invitation from the database.
     $invitation->delete();
 
-    return response()->json(['message' => 'Invitation declined, user notified, and invitation deleted.']);
+    return response()->json(['message' => 'Invitation declined, user notified, and invitation deleted.'], Response::HTTP_OK);
   }
 
   public function index() {
     // Return a list of all invitations.
-    return Invitation::all();
+    return response(Invitation::all(), Response::HTTP_OK);
   }
 }

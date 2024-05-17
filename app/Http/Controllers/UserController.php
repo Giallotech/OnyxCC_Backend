@@ -28,6 +28,11 @@ class UserController extends Controller {
    * Update the specified resource in storage.
    */
   public function update(Request $request, User $user) {
+    // Check if the currently authenticated user can update the given user
+    if ($request->user()->cannot('update', $user)) {
+      return response()->json(['message' => 'You are not authorized to update this user!'], Response::HTTP_FORBIDDEN);
+    }
+
     $validatedData = $request->validate([
       'name' => 'sometimes|required|string|max:255',
       'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
@@ -96,13 +101,19 @@ class UserController extends Controller {
     $user->save();
 
     // Return a JSON response
-    return response()->json(['message' => 'Profile updated successfully!']);
+    return response()->json(['message' => 'Profile updated successfully!'], Response::HTTP_OK);
   }
 
   /**
    * Remove the specified resource from storage.
    */
-  public function destroy(User $user) {
-    //
+  public function destroy(Request $request, User $user) {
+    // Check if the currently authenticated user can delete the given user
+    if ($request->user()->cannot('delete', $user)) {
+      return response()->json(['message' => 'You are not authorized to delete this user!'], Response::HTTP_FORBIDDEN);
+    } else {
+      $user->delete();
+      return response()->json(['message' => 'User deleted successfully!'], Response::HTTP_OK);
+    }
   }
 }

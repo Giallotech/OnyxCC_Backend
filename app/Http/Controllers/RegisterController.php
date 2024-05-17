@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Response;
 
 class RegisterController extends Controller {
   public function __invoke(Request $request) {
@@ -38,7 +39,7 @@ class RegisterController extends Controller {
 
       return response()->json(
         ['message' => 'Registration successful.'],
-        status: 201
+        Response::HTTP_CREATED
       );
     } catch (\Exception $e) {
       return response()->json(['message' => $e->getMessage()], status: 400);
