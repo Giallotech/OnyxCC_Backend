@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Skill;
 use App\Models\Category;
-use App\Models\ProjectImages;
+use App\Models\ProjectImage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -19,7 +19,6 @@ class Project extends Model {
     'name',
     'description',
     'user_id',
-    'skill_id',
   ];
 
   // Relationship between the Project model and the User model
@@ -39,6 +38,6 @@ class Project extends Model {
 
   // Relationship between the Project model and the Project_images model
   public function images() {
-    return $this->hasMany(ProjectImages::class);
+    return $this->hasMany(ProjectImage::class);
   }
 }

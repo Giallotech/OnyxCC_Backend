@@ -6,7 +6,7 @@ use App\Models\Project;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class ProjectImages extends Model {
+class ProjectImage extends Model {
   use HasFactory;
 
   protected $fillable = [
@@ -14,7 +14,7 @@ class ProjectImages extends Model {
     'image_path',
   ];
 
-  // Relationship between the Project model and the Project_images model
+  // Relationship between the Project model and the ProjectImage model
   public function project() {
     return $this->belongsTo(Project::class);
   }

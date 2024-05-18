@@ -55,12 +55,14 @@ class UserController extends Controller {
     }
 
     $validatedData = $request->validate([
-      'name' => 'sometimes|required|string|max:255',
-      'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
-      'profile_picture' => 'sometimes|image|max:2048',
-      'description' => 'sometimes|required|string|max:500',
-      'categories' => 'sometimes|required|array',
-      'skills' => 'sometimes|required|array',
+      'name' => 'required|string|max:255',
+      'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+      'profile_picture' => 'required|image|max:2048',
+      'description' => 'required|string|max:500',
+      'categories' => 'required|array',
+      'categories.*' => 'required|string',
+      'skills' => 'required|array',
+      'skills.*' => 'required|string',
     ]);
 
     // Remove 'categories' and 'skills' from the validated data. If I don't do this, the 'categories' and 'skills' fields will be updated in the users table, which is not what we want, because they are stored in the pivot tables and not in the users table.
