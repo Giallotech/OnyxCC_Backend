@@ -51,6 +51,11 @@ class User extends Authenticatable {
     ];
   }
 
+  // Check if the user is an admin
+  public function isAdmin() {
+    return $this->role === 'admin';
+  }
+
   // Relationship between the User model and the Project model
   public function projects() {
     return $this->hasMany(Project::class);

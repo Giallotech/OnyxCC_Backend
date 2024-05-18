@@ -32,7 +32,12 @@ class InvitationController extends Controller {
     return response($invitation, Response::HTTP_CREATED);
   }
 
-  public function approveAndSend(Invitation $invitation) {
+  public function approveAndSend(Invitation $invitation, Request $request) {
+    // Check if the user is authorized to approve the invitation. This is done using a policy.
+    if ($request->user()->cannot('approve', $invitation)) {
+      return response()->json(['message' => 'You are not authorized to approve this invitation!'], Response::HTTP_FORBIDDEN);
+    }
+
     // Check if the invitation is already approved.
     if ($invitation->status === 'approved') {
       return response()->json([
@@ -58,7 +63,12 @@ class InvitationController extends Controller {
   }
 
 
-  public function decline(Invitation $invitation) {
+  public function decline(Invitation $invitation, Request $request) {
+    // Check if the user is authorized to decline the invitation. This is done using a policy.
+    if ($request->user()->cannot('decline', $invitation)) {
+      return response()->json(['message' => 'You are not authorized to decline this invitation!'], Response::HTTP_FORBIDDEN);
+    }
+
     // Send an email to the user notifying them that their invitation has been declined.
     Mail::raw("Your invitation has been declined. Please note that only staff members can register to our website.", function ($message) use ($invitation) {
       $message->to($invitation->email)
@@ -71,7 +81,12 @@ class InvitationController extends Controller {
     return response()->json(['message' => 'Invitation declined, user notified, and invitation deleted.'], Response::HTTP_OK);
   }
 
-  public function index() {
+  public function index(Request $request) {
+    // Check if the user is authorized to see all the invitation. This is done using a policy.
+    if ($request->user()->cannot('index', Invitation::class)) {
+      return response()->json(['message' => 'You are not authorized to view all invitations!'], Response::HTTP_FORBIDDEN);
+    }
+
     // Return a list of all invitations.
     return response(Invitation::all(), Response::HTTP_OK);
   }
