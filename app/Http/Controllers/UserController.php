@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Skill;
 use App\Models\Category;
+use App\Models\Invitation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -14,14 +15,15 @@ class UserController extends Controller {
    * Display a listing of the resource.
    */
   public function index() {
-    //
+    $users = User::all();
+    return response()->json($users);
   }
 
   /**
    * Display the specified resource.
    */
   public function show(User $user) {
-    //
+    return response()->json($user);
   }
 
   /**
@@ -127,12 +129,14 @@ class UserController extends Controller {
    * Remove the specified resource from storage.
    */
   public function destroy(Request $request, User $user) {
-    // Check if the currently authenticated user can delete the given user
     if ($request->user()->cannot('delete', $user)) {
       return response()->json(['message' => 'You are not authorized to delete this user!'], Response::HTTP_FORBIDDEN);
     } else {
+      // Delete the invitation associated with the user
+      Invitation::where('email', $user->email)->delete();
+
       $user->delete();
-      return response()->json(['message' => 'User deleted successfully!'], Response::HTTP_OK);
+      return response()->json(['message' => 'User and associated invitation deleted successfully!'], Response::HTTP_OK);
     }
   }
 }

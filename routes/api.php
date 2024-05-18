@@ -16,13 +16,15 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/login', LoginController::class);
+
 Route::middleware('auth:sanctum')->group(function () {
+  Route::post('/logout', LogoutController::class);
 
   // Admin routes
   Route::post('/admin/invitations/{invitation}/approve-and-send', [InvitationController::class, 'approveAndSend']);
   Route::get('/admin/invitations', [InvitationController::class, 'index']);
   Route::delete('/admin/invitations/{invitation}/decline', [InvitationController::class, 'decline']);
-  Route::post('/logout', LogoutController::class);
+
   Route::apiResource('users', UserController::class)->except('index', 'show');
 
   // I am using the POST method to update a user's information because some browsers don't support the PUT method. I'll include the _method field in the request body to tell Laravel to treat the request as a PUT request.

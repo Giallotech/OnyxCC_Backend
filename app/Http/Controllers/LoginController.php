@@ -9,8 +9,8 @@ use Illuminate\Http\Response;
 class LoginController extends Controller {
   public function __invoke(Request $request) {
     $request->validate([
-      'email' => ['required', 'string', 'email', 'max:255'],
-      'password' => ['required', 'string']
+      'email' => 'required|string|email|max:255',
+      'password' => 'required|string',
     ]);
 
     $credentials = $request->only('email', 'password');

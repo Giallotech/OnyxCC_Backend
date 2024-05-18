@@ -20,12 +20,6 @@ class InvitationController extends Controller {
     $invitation = new Invitation;
     $invitation->email = $request->email;
     $invitation->token = Str::random(32); // Generate a random token.
-
-    // Set the requester's user ID if a user is authenticated.
-    if (Auth::check()) {
-      $invitation->requested_by_user_id = Auth::id();
-    }
-
     $invitation->status = 'pending';
     $invitation->save();
 
