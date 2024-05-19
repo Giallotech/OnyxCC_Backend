@@ -19,66 +19,11 @@ class ProjectController extends Controller {
     return response()->json($projects, 200);
   }
 
-  public function store(Request $request) {
-    $request->validate([
-      'cover_picture' => 'required|image',
-      'executable_file' => 'nullable|file',
-      'video_preview' => 'nullable|mimes:mp4,avi,mov,ogg,qt',
-      'title' => 'required|string|max:255',
-      'description' => 'required|string|max:1000',
-      'categories' => 'required|array',
-      'categories.*' => 'string|exists:categories,name',
-      'skills' => 'required|array',
-      'skills.*' => 'string|exists:skills,name',
-      'images' => 'nullable|array',
-      'images.*' => 'image',
-    ]);
-
-    $project = new Project($request->all());
-    $project->user_id = auth()->id();
-
-    // If the request includes an executable file, handle the file upload
-    if ($request->has('executable_file')) {
-      $executableFilePath = $this->handleUpload($request->file('executable_file'), 'executables');
-      $project->executable_file = $executableFilePath;
-    }
-
-    // If the request includes a video preview, handle the file upload
-    if ($request->has('video_preview')) {
-      $videoPreviewPath = $this->handleUpload($request->file('video_preview'), 'videos');
-      $project->video_preview = $videoPreviewPath;
-    }
-
-    // If the request includes a cover picture, handle the file upload
-    if ($request->has('cover_picture')) {
-      $coverPicturePath = $this->handleUpload($request->file('cover_picture'), 'cover_pictures');
-      $project->cover_picture = $coverPicturePath;
-    }
-
-    $project->save();
-
-    // Find category IDs and attach them to the project
-    $categoryIds = Category::whereIn('name', $request->categories)->pluck('id');
-    $project->categories()->attach($categoryIds);
-
-    // Find skill IDs and attach them to the project
-    $skillIds = Skill::whereIn('name', $request->skills)->pluck('id');
-    $project->skills()->attach($skillIds);
-
-    // If the request includes images, handle the image uploads
-    if ($request->has('images')) {
-      foreach ($request->file('images') as $image) {
-        // Handle the image upload and get the image path
-        $imagePath = $this->handleUpload($image, 'project_images');
-
-        // Create a new ProjectImage instance and save it to the database
-        $projectImage = new ProjectImage(['image_path' => $imagePath]);
-        $projectImage->project_id = $project->id;
-        $projectImage->save();
-      }
-    }
-
-    return response()->json(['message' => 'Project created successfully'], Response::HTTP_CREATED);
+  /**
+   * Display the specified resource.
+   */
+  public function show(Project $project) {
+    return response()->json($project, 200);
   }
 
   /**
@@ -108,10 +53,75 @@ class ProjectController extends Controller {
   }
 
   /**
-   * Display the specified resource.
+   * Delete the file from storage.
    */
-  public function show(Project $project) {
-    return response()->json($project, 200);
+  private function deleteFileFromStorage($filePath) {
+    if (app()->environment('production')) {
+      Storage::disk('s3')->delete($filePath);
+    } else {
+      Storage::disk('public')->delete($filePath);
+    }
+  }
+
+  /**
+   * Store a newly created resource in storage.
+   */
+  public function store(Request $request) {
+    $request->validate([
+      'cover_picture' => 'required|image',
+      'executable_file' => 'nullable|file',
+      'video_preview' => 'nullable|mimes:mp4,avi,mov,ogg,qt',
+      'title' => 'required|string|max:255',
+      'description' => 'required|string|max:1000',
+      'categories' => 'required|array',
+      'categories.*' => 'string|exists:categories,name',
+      'skills' => 'required|array',
+      'skills.*' => 'string|exists:skills,name',
+      'images' => 'nullable|array',
+      'images.*' => 'image',
+    ]);
+
+    $project = new Project($request->all());
+    $project->user_id = auth()->id();
+
+    if ($request->has('executable_file')) {
+      $executableFilePath = $this->handleUpload($request->file('executable_file'), 'executables');
+      $project->executable_file = $executableFilePath;
+    }
+
+    if ($request->has('video_preview')) {
+      $videoPreviewPath = $this->handleUpload($request->file('video_preview'), 'videos');
+      $project->video_preview = $videoPreviewPath;
+    }
+
+    if ($request->has('cover_picture')) {
+      $coverPicturePath = $this->handleUpload($request->file('cover_picture'), 'cover_pictures');
+      $project->cover_picture = $coverPicturePath;
+    }
+
+    $project->save();
+
+    // Find category IDs and attach them to the project
+    $categoryIds = Category::whereIn('name', $request->categories)->pluck('id');
+    $project->categories()->attach($categoryIds);
+
+    // Find skill IDs and attach them to the project
+    $skillIds = Skill::whereIn('name', $request->skills)->pluck('id');
+    $project->skills()->attach($skillIds);
+
+    if ($request->has('images')) {
+      foreach ($request->file('images') as $image) {
+        // Handle the image upload and get the image path
+        $imagePath = $this->handleUpload($image, 'project_images');
+
+        // Create a new ProjectImage instance and save it to the database
+        $projectImage = new ProjectImage(['image_path' => $imagePath]);
+        $projectImage->project_id = $project->id;
+        $projectImage->save();
+      }
+    }
+
+    return response()->json(['message' => 'Project created successfully'], Response::HTTP_CREATED);
   }
 
   /**
@@ -136,7 +146,6 @@ class ProjectController extends Controller {
       return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
     }
 
-    // $fieldsToUpdate = $request->only(['name', 'description']);
     $fieldsToUpdate = $request->only(['title', 'description']);
 
     if ($request->has('executable_file')) {
@@ -196,16 +205,6 @@ class ProjectController extends Controller {
     return response()->json(['message' => 'Project updated successfully'], Response::HTTP_OK);
   }
 
-  private function deleteFileFromStorage($filePath) {
-    if (app()->environment('production')) {
-      // Delete the file from the S3 bucket
-      Storage::disk('s3')->delete($filePath);
-    } else {
-      // Delete the file from local storage
-      Storage::disk('public')->delete($filePath);
-    }
-  }
-
   /**
    * Remove the specified resource from storage.
    */
@@ -214,7 +213,6 @@ class ProjectController extends Controller {
       return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
     }
 
-    // Delete associated files
     if ($project->executable_file) {
       $oldExecutableFileName = basename($project->executable_file);
       $oldExecutableFilePath = 'executables/' . $oldExecutableFileName;
@@ -240,13 +238,10 @@ class ProjectController extends Controller {
       $image->delete();
     }
 
-    // Delete the project's categories
     $project->categories()->detach();
 
-    // Delete the project's skills
     $project->skills()->detach();
 
-    // Delete the project
     $project->delete();
 
     return response()->json(['message' => 'Project deleted successfully'], Response::HTTP_OK);
