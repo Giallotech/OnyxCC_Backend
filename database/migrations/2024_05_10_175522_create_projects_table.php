@@ -14,10 +14,9 @@ return new class extends Migration {
       $table->string('cover_picture');
       $table->string('executable_file')->nullable();
       $table->string('video_preview')->nullable();
-      $table->string('name');
+      $table->string('title');
       $table->text('description');
       $table->foreignId('user_id')->constrained();
-      // $table->foreignId('skill_id')->constrained();
       $table->timestamps();
     });
   }

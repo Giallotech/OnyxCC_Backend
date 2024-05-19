@@ -16,7 +16,7 @@ class Project extends Model {
     'cover_picture',
     'executable_file',
     'video_preview',
-    'name',
+    'title',
     'description',
     'user_id',
   ];

@@ -137,6 +137,12 @@ class UserController extends Controller {
       // Delete the invitation associated with the user
       Invitation::where('email', $user->email)->delete();
 
+      // Delete the user's categories
+      $user->categories()->detach();
+
+      // Delete the user's skills
+      $user->skills()->detach();
+
       $user->delete();
       return response()->json(['message' => 'User and associated invitation deleted successfully!'], Response::HTTP_OK);
     }
