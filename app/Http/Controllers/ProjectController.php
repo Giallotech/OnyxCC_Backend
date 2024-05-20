@@ -15,7 +15,22 @@ class ProjectController extends Controller {
    * Display a listing of the resource.
    */
   public function index() {
-    $projects = Project::all();
+    $projects = Project::all()->toArray();
+
+    if (app()->environment('production')) {
+      $s3BaseUrl = 'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/';
+
+      foreach ($projects as &$project) {
+        $project['cover_picture'] = $s3BaseUrl . $project['cover_picture'];
+        $project['executable_file'] = $s3BaseUrl . $project['executable_file'];
+        $project['video_preview'] = $s3BaseUrl . $project['video_preview'];
+
+        foreach ($project['images'] as &$image) {
+          $image['image_path'] = $s3BaseUrl . $image['image_path'];
+        }
+      }
+    }
+
     return response()->json($projects, 200);
   }
 
@@ -23,6 +38,20 @@ class ProjectController extends Controller {
    * Display the specified resource.
    */
   public function show(Project $project) {
+    $project = $project->toArray();
+
+    if (app()->environment('production')) {
+      $s3BaseUrl = 'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/';
+
+      $project['cover_picture'] = $s3BaseUrl . $project['cover_picture'];
+      $project['executable_file'] = $s3BaseUrl . $project['executable_file'];
+      $project['video_preview'] = $s3BaseUrl . $project['video_preview'];
+
+      foreach ($project['images'] as &$image) {
+        $image['image_path'] = $s3BaseUrl . $image['image_path'];
+      }
+    }
+
     return response()->json($project, 200);
   }
 
