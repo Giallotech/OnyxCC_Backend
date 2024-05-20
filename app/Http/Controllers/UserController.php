@@ -15,7 +15,16 @@ class UserController extends Controller {
    * Display a listing of the resource.
    */
   public function index() {
-    $users = User::all();
+    $users = User::all()->toArray();
+
+    $baseUrl = app()->environment('production') ?
+      'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
+      url('/storage/');
+
+    foreach ($users as &$user) {
+      $user['profile_picture'] = $baseUrl . $user['profile_picture'];
+    }
+
     return response()->json($users);
   }
 
@@ -23,6 +32,14 @@ class UserController extends Controller {
    * Display the specified resource.
    */
   public function show(User $user) {
+    $user = $user->toArray();
+
+    $baseUrl = app()->environment('production') ?
+      'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
+      url('/storage/');
+
+    $user['profile_picture'] = $baseUrl . $user['profile_picture'];
+
     return response()->json($user);
   }
 
@@ -83,11 +100,11 @@ class UserController extends Controller {
         // Use the Storage facade to store the image in the S3 bucket
         $imageKey = Storage::disk('s3')->put($imageName, file_get_contents($image), 'public-read');
       } else {
-        // Store the image in the public/profile_picture storage directory
-        $image->storeAs('public/profile_picture', $imageName);
+        // Store the image in the profile_pictures storage directory
+        $image->storeAs('profile_pictures', $imageName);
 
         // Generate the key for the image
-        $imageKey = 'public/profile_picture/' . $imageName;
+        $imageKey = 'profile_pictures/' . $imageName;
       }
 
       // Save the key of the image to the user's profile
