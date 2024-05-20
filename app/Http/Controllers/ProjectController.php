@@ -14,47 +14,6 @@ class ProjectController extends Controller {
   /**
    * Display a listing of the resource.
    */
-  // public function index() {
-  //   $projects = Project::all()->toArray();
-
-  //   if (app()->environment('production')) {
-  //     $s3BaseUrl = 'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/';
-
-  //     foreach ($projects as &$project) {
-  //       $project['cover_picture'] = $s3BaseUrl . $project['cover_picture'];
-  //       $project['executable_file'] = $s3BaseUrl . $project['executable_file'];
-  //       $project['video_preview'] = $s3BaseUrl . $project['video_preview'];
-
-  //       foreach ($project['images'] as &$image) {
-  //         $image['image_path'] = $s3BaseUrl . $image['image_path'];
-  //       }
-  //     }
-  //   }
-
-  //   return response()->json($projects, 200);
-  // }
-
-  // /**
-  //  * Display the specified resource.
-  //  */
-  // public function show(Project $project) {
-  //   $project = $project->toArray();
-
-  //   if (app()->environment('production')) {
-  //     $s3BaseUrl = 'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/';
-
-  //     $project['cover_picture'] = $s3BaseUrl . $project['cover_picture'];
-  //     $project['executable_file'] = $s3BaseUrl . $project['executable_file'];
-  //     $project['video_preview'] = $s3BaseUrl . $project['video_preview'];
-
-  //     foreach ($project['images'] as &$image) {
-  //       $image['image_path'] = $s3BaseUrl . $image['image_path'];
-  //     }
-  //   }
-
-  //   return response()->json($project, 200);
-  // }
-
   public function index() {
     $projects = Project::all()->toArray();
 
@@ -75,6 +34,9 @@ class ProjectController extends Controller {
     return response()->json($projects, 200);
   }
 
+  /**
+   * Display the specified resource.
+   */
   public function show(Project $project) {
     $project = $project->toArray();
 
@@ -102,7 +64,7 @@ class ProjectController extends Controller {
 
       if (app()->environment('production')) {
         // Use the Storage facade to store the file in the S3 bucket
-        Storage::disk('s3')->put($fileName, file_get_contents($file), 'public-read');
+        Storage::disk('s3')->putFileAs($directory, $file, $fileName, 'public');
       } else {
         // Store the file in the specified storage directory
         $file->storeAs('public/' . $directory, $fileName);
