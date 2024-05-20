@@ -36,18 +36,12 @@ class ProjectController extends Controller {
       if (app()->environment('production')) {
         // Use the Storage facade to store the file in the S3 bucket
         Storage::disk('s3')->put($fileName, file_get_contents($file), 'public-read');
-
-        // Manually construct the URL for the file in the S3 bucket
-        $fileUrl = 'https://s3.eu-north-1.amazonaws.com/backpackit/' . $fileName;
       } else {
         // Store the file in the specified storage directory
         $file->storeAs('public/' . $directory, $fileName);
-
-        // Generate the URL for the file
-        $fileUrl = asset('storage/' . $directory . '/' . $fileName);
       }
 
-      return $fileUrl;
+      return $directory . '/' . $fileName;
     }
     return null;
   }
@@ -59,7 +53,8 @@ class ProjectController extends Controller {
     if (app()->environment('production')) {
       Storage::disk('s3')->delete($filePath);
     } else {
-      Storage::disk('public')->delete($filePath);
+      $imagePath = str_replace('public/', '', $filePath);
+      Storage::disk('public')->delete($imagePath);
     }
   }
 
@@ -149,10 +144,8 @@ class ProjectController extends Controller {
     $fieldsToUpdate = $request->only(['title', 'description']);
 
     if ($request->has('executable_file')) {
-      $oldExecutableFileUrl = $project->executable_file;
-      if ($oldExecutableFileUrl) {
-        $oldExecutableFileName = basename($oldExecutableFileUrl);
-        $oldExecutableFilePath = 'executables/' . $oldExecutableFileName;
+      $oldExecutableFilePath = $project->executable_file;
+      if ($oldExecutableFilePath) {
         $this->deleteFileFromStorage($oldExecutableFilePath);
       }
       $executableFilePath = $this->handleUpload($request->file('executable_file'), 'executables');
@@ -160,10 +153,8 @@ class ProjectController extends Controller {
     }
 
     if ($request->has('video_preview')) {
-      $oldVideoPreviewUrl = $project->video_preview;
-      if ($oldVideoPreviewUrl) {
-        $oldVideoPreviewName = basename($oldVideoPreviewUrl);
-        $oldVideoPreviewPath = 'videos/' . $oldVideoPreviewName;
+      $oldVideoPreviewPath = $project->video_preview;
+      if ($oldVideoPreviewPath) {
         $this->deleteFileFromStorage($oldVideoPreviewPath);
       }
       $videoPreviewPath = $this->handleUpload($request->file('video_preview'), 'videos');
@@ -171,10 +162,8 @@ class ProjectController extends Controller {
     }
 
     if ($request->has('cover_picture')) {
-      $oldCoverPictureUrl = $project->cover_picture;
-      if ($oldCoverPictureUrl) {
-        $oldCoverPictureName = basename($oldCoverPictureUrl);
-        $oldCoverPicturePath = 'cover_pictures/' . $oldCoverPictureName;
+      $oldCoverPicturePath = $project->cover_picture;
+      if ($oldCoverPicturePath) {
         $this->deleteFileFromStorage($oldCoverPicturePath);
       }
       $coverPicturePath = $this->handleUpload($request->file('cover_picture'), 'cover_pictures');
@@ -183,10 +172,8 @@ class ProjectController extends Controller {
 
     if ($request->has('images')) {
       foreach ($project->images as $image) {
-        $oldImageUrl = $image->image_path;
-        if ($oldImageUrl) {
-          $oldImageName = basename($oldImageUrl);
-          $oldImagePath = 'project_images/' . $oldImageName;
+        $oldImagePath = $image->image_path;
+        if ($oldImagePath) {
           $this->deleteFileFromStorage($oldImagePath);
         }
         $image->delete();
@@ -214,27 +201,19 @@ class ProjectController extends Controller {
     }
 
     if ($project->executable_file) {
-      $oldExecutableFileName = basename($project->executable_file);
-      $oldExecutableFilePath = 'executables/' . $oldExecutableFileName;
-      $this->deleteFileFromStorage($oldExecutableFilePath);
+      $this->deleteFileFromStorage($project->executable_file);
     }
 
     if ($project->video_preview) {
-      $oldVideoPreviewName = basename($project->video_preview);
-      $oldVideoPreviewPath = 'videos/' . $oldVideoPreviewName;
-      $this->deleteFileFromStorage($oldVideoPreviewPath);
+      $this->deleteFileFromStorage($project->video_preview);
     }
 
     if ($project->cover_picture) {
-      $oldCoverPictureName = basename($project->cover_picture);
-      $oldCoverPicturePath = 'cover_pictures/' . $oldCoverPictureName;
-      $this->deleteFileFromStorage($oldCoverPicturePath);
+      $this->deleteFileFromStorage($project->cover_picture);
     }
 
     foreach ($project->images as $image) {
-      $oldImageName = basename($image->image_path);
-      $oldImagePath = 'project_images/' . $oldImageName;
-      $this->deleteFileFromStorage($oldImagePath);
+      $this->deleteFileFromStorage($image->image_path);
       $image->delete();
     }
 

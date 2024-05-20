@@ -29,28 +29,23 @@ class UserController extends Controller {
   /**
    * Update the specified resource in storage.
    */
+
   public function update(Request $request, User $user) {
     // Check if the currently authenticated user can update the given user
     if ($request->user()->cannot('update', $user)) {
       return response()->json(['message' => 'You are not authorized to update this user!'], Response::HTTP_FORBIDDEN);
     }
 
-    $oldImageUrl = $user->profile_picture;
+    $oldImageKey = $user->profile_picture;
 
-    if ($oldImageUrl) {
-      // If the image path is a URL, extract the image name
-      if (filter_var($oldImageUrl, FILTER_VALIDATE_URL)) {
-        $oldImageName = basename($oldImageUrl);
-      }
-
+    if ($oldImageKey) {
       if (app()->environment('production')) {
         // Delete the old image from the S3 bucket
-        $oldImagePath = 'profile_picture/' . $oldImageName;
-        Storage::disk('s3')->delete($oldImagePath);
+        Storage::disk('s3')->delete($oldImageKey);
       } else {
         // Delete the old image from local storage
-        $oldImagePath = 'profile_picture/' . $oldImageName;
-        Storage::disk('public')->delete($oldImagePath);
+        $imagePath = str_replace('public/', '', $oldImageKey);
+        Storage::disk('public')->delete($imagePath);
       }
     }
 
@@ -65,7 +60,7 @@ class UserController extends Controller {
       'skills.*' => 'required|string',
     ]);
 
-    // Remove 'categories' and 'skills' from the validated data. If I don't do this, the 'categories' and 'skills' fields will be updated in the users table, which is not what we want, because they are stored in the pivot tables and not in the users table.
+    // Remove 'categories' and 'skills' from the validated data
     $categories = $validatedData['categories'];
     $skills = $validatedData['skills'];
 
@@ -73,7 +68,6 @@ class UserController extends Controller {
 
     // Update the user's name, email, and description
     foreach ($validatedData as $key => $value) {
-
       // This code makes sure that only the fields that are present in the validated data are updated
       if ($request->has($key)) {
         $user->{$key} = $value;
@@ -87,20 +81,17 @@ class UserController extends Controller {
 
       if (app()->environment('production')) {
         // Use the Storage facade to store the image in the S3 bucket
-        Storage::disk('s3')->put($imageName, file_get_contents($image), 'public-read');
-
-        // Manually construct the URL for the image in the S3 bucket
-        $imageUrl = 'https://s3.eu-north-1.amazonaws.com/backpackit/' . $imageName;
+        $imageKey = Storage::disk('s3')->put($imageName, file_get_contents($image), 'public-read');
       } else {
         // Store the image in the public/profile_picture storage directory
         $image->storeAs('public/profile_picture', $imageName);
 
-        // Generate the URL for the image
-        $imageUrl = asset('storage/profile_picture/' . $imageName);
+        // Generate the key for the image
+        $imageKey = 'public/profile_picture/' . $imageName;
       }
 
-      // Save the URL of the image to the user's profile
-      $user->profile_picture = $imageUrl;
+      // Save the key of the image to the user's profile
+      $user->profile_picture = $imageKey;
     }
 
     // Sync the user's categories and skills if they are present in the validated data
