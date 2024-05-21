@@ -61,8 +61,7 @@ class UserController extends Controller {
         Storage::disk('s3')->delete($oldImageKey);
       } else {
         // Delete the old image from local storage
-        $imagePath = str_replace('public/', '', $oldImageKey);
-        Storage::disk('public')->delete($imagePath);
+        Storage::disk('public')->delete($oldImageKey);
       }
     }
 
@@ -98,13 +97,13 @@ class UserController extends Controller {
 
       if (app()->environment('production')) {
         // Use the Storage facade to store the image in the S3 bucket
-        $imageKey = Storage::disk('s3')->putFile('profile_pictures', $image, 'public');
+        $imageKey = Storage::disk('s3')->putFile('profile_picture', $image, 'public');
       } else {
-        // Store the image in the profile_pictures storage directory
-        $image->storeAs('profile_pictures', $imageName);
+        // Store the image in the profile_picture storage directory
+        $image->storeAs('profile_picture', $imageName, 'public');
 
         // Generate the key for the image
-        $imageKey = 'profile_pictures/' . $imageName;
+        $imageKey = 'profile_picture/' . $imageName;
       }
 
       // Save the key of the image to the user's profile
@@ -151,8 +150,28 @@ class UserController extends Controller {
       // Delete the user's skills
       $user->skills()->detach();
 
+      // Delete the user's projects and associated categories, images, and skills
+      foreach ($user->projects as $project) {
+        $project->categories()->detach();
+        $project->images()->delete();
+        $project->skills()->detach();
+        $project->delete();
+      }
+
+      // Delete the user's profile picture from storage
+      if ($user->profile_picture) {
+        if (app()->environment('production')) {
+          // Delete the profile picture from the S3 bucket
+          Storage::disk('s3')->delete($user->profile_picture);
+        } else {
+          // Delete the profile picture from local storage
+          Storage::disk('public')->delete($user->profile_picture);
+        }
+      }
+
+      // Delete the user
       $user->delete();
-      return response()->json(['message' => 'User and associated invitation deleted successfully!'], Response::HTTP_OK);
+      return response()->json(['message' => 'User and associated data deleted successfully!'], Response::HTTP_OK);
     }
   }
 }

@@ -67,7 +67,7 @@ class ProjectController extends Controller {
         Storage::disk('s3')->putFileAs($directory, $file, $fileName, 'public');
       } else {
         // Store the file in the specified storage directory
-        $file->storeAs('public/' . $directory, $fileName);
+        $file->storeAs($directory, $fileName, 'public');
       }
 
       return $directory . '/' . $fileName;
@@ -82,8 +82,9 @@ class ProjectController extends Controller {
     if (app()->environment('production')) {
       Storage::disk('s3')->delete($filePath);
     } else {
-      $imagePath = str_replace('public/', '', $filePath);
-      Storage::disk('public')->delete($imagePath);
+      if (Storage::disk('public')->exists($filePath)) {
+        Storage::disk('public')->delete($filePath);
+      }
     }
   }
 
