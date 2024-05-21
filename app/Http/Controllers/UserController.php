@@ -150,14 +150,6 @@ class UserController extends Controller {
       // Delete the user's skills
       $user->skills()->detach();
 
-      // Delete the user's projects and associated categories, images, and skills
-      foreach ($user->projects as $project) {
-        $project->categories()->detach();
-        $project->images()->delete();
-        $project->skills()->detach();
-        $project->delete();
-      }
-
       // Delete the user's profile picture from storage
       if ($user->profile_picture) {
         if (app()->environment('production')) {
