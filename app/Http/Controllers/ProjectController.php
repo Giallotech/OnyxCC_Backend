@@ -15,7 +15,7 @@ class ProjectController extends Controller {
    * Display a listing of the resource.
    */
   public function index() {
-    $projects = Project::all()->toArray();
+    $projects = Project::with('images')->get()->toArray();
 
     $baseUrl = app()->environment('production') ?
       'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
@@ -26,19 +26,19 @@ class ProjectController extends Controller {
       $project['executable_file'] = $baseUrl . $project['executable_file'];
       $project['video_preview'] = $baseUrl . $project['video_preview'];
 
-      foreach ($project['images'] as &$image) {
-        $image['image_path'] = $baseUrl . $image['image_path'];
+      if (isset($project['images'])) {
+        foreach ($project['images'] as &$image) {
+          $image['image_path'] = $baseUrl . $image['image_path'];
+        }
       }
     }
 
     return response()->json($projects, 200);
   }
 
-  /**
-   * Display the specified resource.
-   */
+
   public function show(Project $project) {
-    $project = $project->toArray();
+    $project = $project->load('images')->toArray();
 
     $baseUrl = app()->environment('production') ?
       'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
@@ -48,8 +48,10 @@ class ProjectController extends Controller {
     $project['executable_file'] = $baseUrl . $project['executable_file'];
     $project['video_preview'] = $baseUrl . $project['video_preview'];
 
-    foreach ($project['images'] as &$image) {
-      $image['image_path'] = $baseUrl . $image['image_path'];
+    if (isset($project['images'])) {
+      foreach ($project['images'] as &$image) {
+        $image['image_path'] = $baseUrl . $image['image_path'];
+      }
     }
 
     return response()->json($project, 200);
