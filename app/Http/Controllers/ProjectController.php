@@ -247,10 +247,6 @@ class ProjectController extends Controller {
       $image->delete();
     }
 
-    $project->categories()->detach();
-
-    $project->skills()->detach();
-
     $project->delete();
 
     return response()->json(['message' => 'Project deleted successfully'], Response::HTTP_OK);
