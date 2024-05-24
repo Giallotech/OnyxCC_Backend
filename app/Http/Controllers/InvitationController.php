@@ -45,12 +45,12 @@ class InvitationController extends Controller {
     $invitation->save();
 
     // Send the invitation.
-    // This URL will be sent in the email to the invited user, and it will redirect them to the frontend route where they can accept the invitation.
-    $url = env('FRONTEND_APP_URL') . "/accept-invitation/{$invitation->token}";
+    // This URL will be sent in the email to the invited user, and it will redirect them to the registration page where they can create an account.
+    $url = env('FRONTEND_APP_URL') . "/api/register?token={$invitation->token}";
 
-    Mail::raw("You have been invited! Click here to accept the invitation: $url", function ($message) use ($invitation) {
+    Mail::raw("Your request has been approved! Click here to register: $url", function ($message) use ($invitation) {
       $message->to($invitation->email)
-        ->subject('You are invited!');
+        ->subject('Your request has been approved!');
     });
 
     return response()->json(['message' => 'Invitation approved and sent!'], Response::HTTP_OK);
