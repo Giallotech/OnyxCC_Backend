@@ -97,7 +97,7 @@ class ProjectController extends Controller {
     $request->validate([
       'cover_picture' => 'required|image',
       'executable_file' => 'nullable|file',
-      'video_preview' => 'nullable|mimes:mp4,avi,mov,ogg,qt',
+      'video_preview' => ['nullable', 'file', 'streamable'],
       'title' => 'required|string|max:255',
       'description' => 'required|string|max:1000',
       'categories' => 'required|array',
@@ -158,7 +158,7 @@ class ProjectController extends Controller {
     $request->validate([
       'cover_picture' => 'nullable|image',
       'executable_file' => 'nullable|file',
-      'video_preview' => 'nullable|mimes:mp4,avi,mov,ogg,qt',
+      'video_preview' => ['nullable', 'file', 'streamable'],
       'title' => 'nullable|string|max:255',
       'description' => 'nullable|string|max:1000',
       'categories' => 'nullable|array',
