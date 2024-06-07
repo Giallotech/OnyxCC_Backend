@@ -22,8 +22,12 @@ class RegisterController extends Controller {
       ]);
 
       $role = 'user';
-      if ($request->adminCode === env('ADMIN_REGISTRATION_CODE')) {
-        $role = 'admin';
+      if ($request->has('adminCode')) {
+        if ($request->adminCode === env('ADMIN_REGISTRATION_CODE')) {
+          $role = 'admin';
+        } else {
+          return response()->json(['message' => 'Invalid admin code.'], Response::HTTP_BAD_REQUEST);
+        }
       } else {
         // If the user is not an admin, require an invitation token.
         if (!$request->has('token')) {
