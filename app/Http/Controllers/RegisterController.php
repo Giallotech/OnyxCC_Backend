@@ -22,7 +22,7 @@ class RegisterController extends Controller {
       ]);
 
       $role = 'user';
-      if ($request->has('adminCode')) {
+      if ($request->filled('adminCode')) {
         if ($request->adminCode === env('ADMIN_REGISTRATION_CODE')) {
           $role = 'admin';
         } else {
