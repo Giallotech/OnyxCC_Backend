@@ -17,12 +17,12 @@ class RegisterController extends Controller {
         'username' => 'required|string|min:2|max:255|unique:users,username',
         'email' => 'required|string|email|max:255|unique:users,email',
         'password' => 'required|string',
-        'registration_code' => 'nullable|string|max:255',
+        'adminCode' => 'nullable|string|max:255',
         'token' => 'nullable|string',
       ]);
 
       $role = 'user';
-      if ($request->registration_code === env('ADMIN_REGISTRATION_CODE')) {
+      if ($request->adminCode === env('ADMIN_REGISTRATION_CODE')) {
         $role = 'admin';
       } else {
         // If the user is not an admin, require an invitation token.
@@ -35,6 +35,11 @@ class RegisterController extends Controller {
         if (!$invitation || $invitation->status !== 'approved') {
           return response()->json(['message' => 'Invalid invitation token.'], Response::HTTP_BAD_REQUEST);
         }
+
+        if ($request->has('token') && $request->token !== '') {
+          $invitation->status = 'accepted';
+          $invitation->save();
+        }
       }
 
       $user = User::create([
@@ -44,11 +49,6 @@ class RegisterController extends Controller {
         'password' => Hash::make($request->get('password')),
         'role' => $role,
       ]);
-
-      if ($request->has('token')) {
-        $invitation->status = 'accepted';
-        $invitation->save();
-      }
 
       Auth::login($user);
       $request->session()->regenerate();
