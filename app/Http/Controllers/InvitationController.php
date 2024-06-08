@@ -46,7 +46,7 @@ class InvitationController extends Controller {
 
     // Send the invitation.
     // This URL will be sent in the email to the invited user, and it will redirect them to the registration page where they can create an account.
-    $url = env('FRONTEND_APP_URL') . "/api/register?token={$invitation->token}";
+    $url = env('FRONTEND_APP_URL') . "/register?token={$invitation->token}";
 
     Mail::raw("Your request has been approved! Click here to register: $url", function ($message) use ($invitation) {
       $message->to($invitation->email)
