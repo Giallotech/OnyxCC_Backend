@@ -40,3 +40,4 @@ Route::get('/users/{user}', [UserController::class, 'show']);
 
 Route::get('/projects', [ProjectController::class, 'index']);
 Route::get('/projects/{project}', [ProjectController::class, 'show']);
+Route::get('/projects/download/{project}', [ProjectController::class, 'downloadExecutable']);

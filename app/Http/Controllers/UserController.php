@@ -66,8 +66,8 @@ class UserController extends Controller {
     }
 
     $validatedData = $request->validate([
-      'name' => 'required|string|max:255',
-      'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+      'name' => 'sometimes|string|max:255',
+      'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
       'profile_picture' => 'required|image|max:2048',
       'description' => 'required|string|max:500',
       'categories' => 'required|array',

@@ -77,6 +77,37 @@ class ProjectController extends Controller {
     return null;
   }
 
+  public function downloadExecutable(Project $project) {
+    if (!$project->executable_file) {
+      return response()->json(['message' => 'No executable file found for this project.'], 404);
+    }
+
+    if (app()->environment('production')) {
+      // For S3 storage, generate a temporary URL for the file download
+      $filePath = $project->executable_file;
+      $disk = Storage::disk('s3');
+      if (!$disk->exists($filePath)) {
+        return response()->json(['message' => 'File not found.'], 404);
+      }
+
+      $temporaryUrl = Storage::temporaryUrl(
+        $filePath,
+        now()->addMinutes(5),
+        ['ResponseContentDisposition' => 'attachment']
+      );
+
+      // Correctly redirect to the temporary URL
+      return redirect($temporaryUrl);
+    } else {
+      // For local storage, use the download method directly
+      $filePath = storage_path('app/public/' . $project->executable_file);
+      if (!file_exists($filePath)) {
+        return response()->json(['message' => 'File not found.'], 404);
+      }
+      return response()->download($filePath);
+    }
+  }
+
   /**
    * Delete the file from storage.
    */
@@ -94,19 +125,42 @@ class ProjectController extends Controller {
    * Store a newly created resource in storage.
    */
   public function store(Request $request) {
-    $request->validate([
+    // dd($request->categories, $request->skills);
+    // $request->validate([
+    //   'cover_picture' => 'required|image',
+    //   'executable_file' => 'nullable|file',
+    //   'video_preview' => ['nullable', 'file', 'streamable'],
+    //   'title' => 'required|string|max:255',
+    //   'description' => 'required|string|max:1000',
+    //   'categories' => 'required|array',
+    //   'categories.*' => 'string|exists:categories,name',
+    //   'skills' => 'required|array',
+    //   'skills.*' => 'string|exists:skills,name',
+    //   'images' => 'nullable|array',
+    //   'images.*' => 'image',
+    // ]);
+
+    $validateRules = [
       'cover_picture' => 'required|image',
-      'executable_file' => 'nullable|file',
+      'executable_file' => 'nullable|file|mimes:zip',
       'video_preview' => ['nullable', 'file', 'streamable'],
       'title' => 'required|string|max:255',
       'description' => 'required|string|max:1000',
       'categories' => 'required|array',
-      'categories.*' => 'string|exists:categories,name',
       'skills' => 'required|array',
-      'skills.*' => 'string|exists:skills,name',
       'images' => 'nullable|array',
       'images.*' => 'image',
-    ]);
+    ];
+
+    // Only apply 'exists' validation if categories and skills tables are not empty
+    if (Category::exists()) {
+      $validateRules['categories.*'] = 'string|exists:categories,name';
+    }
+    if (Skill::exists()) {
+      $validateRules['skills.*'] = 'string|exists:skills,name';
+    }
+
+    $request->validate($validateRules);
 
     $project = new Project($request->all());
     $project->user_id = auth()->id();
@@ -157,7 +211,7 @@ class ProjectController extends Controller {
   public function update(Request $request, Project $project) {
     $request->validate([
       'cover_picture' => 'nullable|image',
-      'executable_file' => 'nullable|file',
+      'executable_file' => 'nullable|file|mimes:zip',
       'video_preview' => ['nullable', 'file', 'streamable'],
       'title' => 'nullable|string|max:255',
       'description' => 'nullable|string|max:1000',
