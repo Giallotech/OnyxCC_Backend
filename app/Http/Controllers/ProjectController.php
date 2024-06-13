@@ -125,21 +125,6 @@ class ProjectController extends Controller {
    * Store a newly created resource in storage.
    */
   public function store(Request $request) {
-    // dd($request->categories, $request->skills);
-    // $request->validate([
-    //   'cover_picture' => 'required|image',
-    //   'executable_file' => 'nullable|file',
-    //   'video_preview' => ['nullable', 'file', 'streamable'],
-    //   'title' => 'required|string|max:255',
-    //   'description' => 'required|string|max:1000',
-    //   'categories' => 'required|array',
-    //   'categories.*' => 'string|exists:categories,name',
-    //   'skills' => 'required|array',
-    //   'skills.*' => 'string|exists:skills,name',
-    //   'images' => 'nullable|array',
-    //   'images.*' => 'image',
-    // ]);
-
     $validateRules = [
       'cover_picture' => 'required|image',
       'executable_file' => 'nullable|file|mimes:zip',
