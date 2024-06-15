@@ -19,7 +19,7 @@ class UserController extends Controller {
 
     $baseUrl = app()->environment('production') ?
       'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
-      url('/storage/');
+      rtrim(url('/storage'), '/') . '/';
 
     foreach ($users as &$user) {
       $user['profile_picture'] = $baseUrl . $user['profile_picture'];
@@ -35,8 +35,7 @@ class UserController extends Controller {
     $user = $user->toArray();
 
     $baseUrl = app()->environment('production') ?
-      'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
-      url('/storage/');
+      'https://' . rtrim(config('filesystems.disks.s3.bucket'), '/') . '.s3.' . rtrim(config('filesystems.disks.s3.region'), '/') . '.amazonaws.com/' : rtrim(url('/storage'), '/') . '/';
 
     $user['profile_picture'] = $baseUrl . $user['profile_picture'];
 
