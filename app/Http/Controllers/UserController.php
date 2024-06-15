@@ -64,10 +64,13 @@ class UserController extends Controller {
       }
     }
 
+    // We apply the validation rule for profile_picture based on whether the user already has a profile picture
+    $profilePictureRule = $user->profile_picture ? 'sometimes|image|mimes:jpeg,png,jpg|max:2048' : 'required|image|mimes:jpeg,png,jpg|max:2048';
+
     $validatedData = $request->validate([
       'name' => 'sometimes|string|max:255',
       'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-      'profile_picture' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+      'profile_picture' => $profilePictureRule,
       'description' => 'required|string|max:500',
       'categories' => 'required|array',
       'categories.*' => 'required|string',
