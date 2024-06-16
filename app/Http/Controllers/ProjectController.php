@@ -19,7 +19,7 @@ class ProjectController extends Controller {
 
     $baseUrl = app()->environment('production') ?
       'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
-      url('/storage/');
+      url('/storage') . '/';
 
     foreach ($projects as &$project) {
       $project['cover_picture'] = $baseUrl . $project['cover_picture'];
@@ -42,7 +42,7 @@ class ProjectController extends Controller {
 
     $baseUrl = app()->environment('production') ?
       'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
-      url('/storage/');
+      url('/storage') . '/';
 
     $project['cover_picture'] = $baseUrl . $project['cover_picture'];
     $project['executable_file'] = $baseUrl . $project['executable_file'];
