@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Skill;
 use App\Models\Project;
+use App\Models\User;
 use App\Models\Category;
 use App\Models\ProjectImage;
 use Illuminate\Http\Request;
@@ -124,7 +125,15 @@ class ProjectController extends Controller {
   /**
    * Store a newly created resource in storage.
    */
+
   public function store(Request $request) {
+    $user = User::find(auth()->id());
+
+    // Check if the profile has been updated by comparing the timestamps
+    if ($user->created_at == $user->updated_at) {
+      return response()->json(['message' => 'Please update your profile before creating a project.'], 403);
+    }
+
     $validateRules = [
       'cover_picture' => 'required|image',
       'executable_file' => 'nullable|file|mimes:zip',
@@ -133,12 +142,10 @@ class ProjectController extends Controller {
       'description' => 'required|string|max:1000',
       'categories' => 'required|array',
       'skills' => 'required|array',
-      // Make images field required and ensure each file in the array is an image
       'images' => 'required|array',
       'images.*' => 'required|image',
     ];
 
-    // Only apply 'exists' validation if categories and skills tables are not empty
     if (Category::exists()) {
       $validateRules['categories.*'] = 'string|exists:categories,name';
     }
@@ -149,7 +156,7 @@ class ProjectController extends Controller {
     $request->validate($validateRules);
 
     $project = new Project($request->all());
-    $project->user_id = auth()->id();
+    $project->user_id = $user->id;
 
     if ($request->has('executable_file')) {
       $executableFilePath = $this->handleUpload($request->file('executable_file'), 'executables');
@@ -168,19 +175,14 @@ class ProjectController extends Controller {
 
     $project->save();
 
-    // Find category IDs and attach them to the project
     $categoryIds = Category::whereIn('name', $request->categories)->pluck('id');
     $project->categories()->attach($categoryIds);
 
-    // Find skill IDs and attach them to the project
     $skillIds = Skill::whereIn('name', $request->skills)->pluck('id');
     $project->skills()->attach($skillIds);
 
     foreach ($request->file('images') as $image) {
-      // Handle the image upload and get the image path
       $imagePath = $this->handleUpload($image, 'project_images');
-
-      // Create a new ProjectImage instance and save it to the database
       $projectImage = new ProjectImage(['image_path' => $imagePath]);
       $projectImage->project_id = $project->id;
       $projectImage->save();
