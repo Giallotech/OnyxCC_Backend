@@ -195,7 +195,7 @@ class ProjectController extends Controller {
    */
   public function update(Request $request, Project $project) {
     $request->validate([
-      'cover_picture' => 'nullable|image',
+      'cover_picture' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
       'executable_file' => 'nullable|file|mimes:zip',
       'video_preview' => ['nullable', 'file', 'streamable'],
       'title' => 'nullable|string|max:255',
@@ -205,7 +205,7 @@ class ProjectController extends Controller {
       'skills' => 'nullable|array',
       'skills.*' => 'string',
       'images' => 'nullable|array',
-      'images.*' => 'image',
+      'images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
     ]);
 
     if ($project->user_id !== auth()->id()) {
