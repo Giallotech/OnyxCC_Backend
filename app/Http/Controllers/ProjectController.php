@@ -190,135 +190,6 @@ class ProjectController extends Controller {
     return response()->json(['message' => 'Project created successfully'], Response::HTTP_CREATED);
   }
 
-
-  // public function store(Request $request) {
-  //   $user = User::find(auth()->id());
-
-  //   if ($user->created_at == $user->updated_at) {
-  //     return response()->json(['message' => 'Please update your profile before creating a project.'], 403);
-  //   }
-
-  //   $validateRules = [
-  //     'cover_picture' => 'required|image',
-  //     'executable_file' => 'nullable|file|mimes:zip',
-  //     'video_preview' => ['nullable', 'file', 'streamable'],
-  //     'title' => 'required|string|max:255',
-  //     'description' => 'required|string|max:1000',
-  //     'categories' => 'required|array',
-  //     'skills' => 'required|array',
-  //     'images' => 'required|array',
-  //     'images.*' => 'required|image',
-  //   ];
-
-  //   $request->validate($validateRules);
-
-  //   $project = new Project($request->all());
-  //   $project->user_id = $user->id;
-
-  //   if ($request->has('executable_file')) {
-  //     $executableFilePath = $this->handleUpload($request->file('executable_file'), 'executables');
-  //     $project->executable_file = $executableFilePath;
-  //   }
-
-  //   if ($request->has('video_preview')) {
-  //     $videoPreviewPath = $this->handleUpload($request->file('video_preview'), 'videos');
-  //     $project->video_preview = $videoPreviewPath;
-  //   }
-
-  //   if ($request->has('cover_picture')) {
-  //     $coverPicturePath = $this->handleUpload($request->file('cover_picture'), 'cover_pictures');
-  //     $project->cover_picture = $coverPicturePath;
-  //   }
-
-  //   $project->save();
-
-  //   $categoryIds = collect($request->categories)->map(function ($categoryName) {
-  //     $category = Category::firstOrCreate(['name' => $categoryName]);
-  //     return $category->id;
-  //   });
-  //   $project->categories()->attach($categoryIds);
-
-  //   $skillIds = collect($request->skills)->map(function ($skillName) {
-  //     $skill = Skill::firstOrCreate(['name' => $skillName]);
-  //     return $skill->id;
-  //   });
-  //   $project->skills()->attach($skillIds);
-
-  //   foreach ($request->file('images') as $image) {
-  //     $imagePath = $this->handleUpload($image, 'project_images');
-  //     $projectImage = new ProjectImage(['image_path' => $imagePath]);
-  //     $projectImage->project_id = $project->id;
-  //     $projectImage->save();
-  //   }
-
-  //   return response()->json(['message' => 'Project created successfully'], Response::HTTP_CREATED);
-  // }
-
-  // public function store(Request $request) {
-  //   $user = User::find(auth()->id());
-
-  //   // Check if the profile has been updated by comparing the timestamps
-  //   if ($user->created_at == $user->updated_at) {
-  //     return response()->json(['message' => 'Please update your profile before creating a project.'], 403);
-  //   }
-
-  //   $validateRules = [
-  //     'cover_picture' => 'required|image',
-  //     'executable_file' => 'nullable|file|mimes:zip',
-  //     'video_preview' => ['nullable', 'file', 'streamable'],
-  //     'title' => 'required|string|max:255',
-  //     'description' => 'required|string|max:1000',
-  //     'categories' => 'required|array',
-  //     'skills' => 'required|array',
-  //     'images' => 'required|array',
-  //     'images.*' => 'required|image',
-  //   ];
-
-  //   if (Category::exists()) {
-  //     $validateRules['categories.*'] = 'string|exists:categories,name';
-  //   }
-  //   if (Skill::exists()) {
-  //     $validateRules['skills.*'] = 'string|exists:skills,name';
-  //   }
-
-  //   $request->validate($validateRules);
-
-  //   $project = new Project($request->all());
-  //   $project->user_id = $user->id;
-
-  //   if ($request->has('executable_file')) {
-  //     $executableFilePath = $this->handleUpload($request->file('executable_file'), 'executables');
-  //     $project->executable_file = $executableFilePath;
-  //   }
-
-  //   if ($request->has('video_preview')) {
-  //     $videoPreviewPath = $this->handleUpload($request->file('video_preview'), 'videos');
-  //     $project->video_preview = $videoPreviewPath;
-  //   }
-
-  //   if ($request->has('cover_picture')) {
-  //     $coverPicturePath = $this->handleUpload($request->file('cover_picture'), 'cover_pictures');
-  //     $project->cover_picture = $coverPicturePath;
-  //   }
-
-  //   $project->save();
-
-  //   $categoryIds = Category::whereIn('name', $request->categories)->pluck('id');
-  //   $project->categories()->attach($categoryIds);
-
-  //   $skillIds = Skill::whereIn('name', $request->skills)->pluck('id');
-  //   $project->skills()->attach($skillIds);
-
-  //   foreach ($request->file('images') as $image) {
-  //     $imagePath = $this->handleUpload($image, 'project_images');
-  //     $projectImage = new ProjectImage(['image_path' => $imagePath]);
-  //     $projectImage->project_id = $project->id;
-  //     $projectImage->save();
-  //   }
-
-  //   return response()->json(['message' => 'Project created successfully'], Response::HTTP_CREATED);
-  // }
-
   /**
    * Update the specified resource in storage.
    */
@@ -330,9 +201,9 @@ class ProjectController extends Controller {
       'title' => 'nullable|string|max:255',
       'description' => 'nullable|string|max:1000',
       'categories' => 'nullable|array',
-      'categories.*' => 'string|exists:categories,name',
+      'categories.*' => 'string',
       'skills' => 'nullable|array',
-      'skills.*' => 'string|exists:skills,name',
+      'skills.*' => 'string',
       'images' => 'nullable|array',
       'images.*' => 'image',
     ]);
@@ -341,6 +212,7 @@ class ProjectController extends Controller {
       return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
     }
 
+    $user = User::find(auth()->id());
     $fieldsToUpdate = $request->only(['title', 'description']);
 
     if ($request->has('executable_file')) {
@@ -370,6 +242,24 @@ class ProjectController extends Controller {
       $fieldsToUpdate['cover_picture'] = $coverPicturePath;
     }
 
+    if ($request->has('categories')) {
+      $categoryIds = collect($request->categories)->map(function ($categoryName) use ($user) {
+        $category = Category::firstOrCreate(['name' => $categoryName]);
+        $user->categories()->attach($category->id);
+        return $category->id;
+      });
+      $project->categories()->sync($categoryIds);
+    }
+
+    if ($request->has('skills')) {
+      $skillIds = collect($request->skills)->map(function ($skillName) use ($user) {
+        $skill = Skill::firstOrCreate(['name' => $skillName]);
+        $user->skills()->attach($skill->id);
+        return $skill->id;
+      });
+      $project->skills()->sync($skillIds);
+    }
+
     if ($request->has('images')) {
       foreach ($project->images as $image) {
         $oldImagePath = $image->image_path;
@@ -391,6 +281,75 @@ class ProjectController extends Controller {
 
     return response()->json(['message' => 'Project updated successfully'], Response::HTTP_OK);
   }
+  // public function update(Request $request, Project $project) {
+  //   $request->validate([
+  //     'cover_picture' => 'nullable|image',
+  //     'executable_file' => 'nullable|file|mimes:zip',
+  //     'video_preview' => ['nullable', 'file', 'streamable'],
+  //     'title' => 'nullable|string|max:255',
+  //     'description' => 'nullable|string|max:1000',
+  //     'categories' => 'nullable|array',
+  //     'categories.*' => 'string|exists:categories,name',
+  //     'skills' => 'nullable|array',
+  //     'skills.*' => 'string|exists:skills,name',
+  //     'images' => 'nullable|array',
+  //     'images.*' => 'image',
+  //   ]);
+
+  //   if ($project->user_id !== auth()->id()) {
+  //     return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+  //   }
+
+  //   $fieldsToUpdate = $request->only(['title', 'description']);
+
+  //   if ($request->has('executable_file')) {
+  //     $oldExecutableFilePath = $project->executable_file;
+  //     if ($oldExecutableFilePath) {
+  //       $this->deleteFileFromStorage($oldExecutableFilePath);
+  //     }
+  //     $executableFilePath = $this->handleUpload($request->file('executable_file'), 'executables');
+  //     $fieldsToUpdate['executable_file'] = $executableFilePath;
+  //   }
+
+  //   if ($request->has('video_preview')) {
+  //     $oldVideoPreviewPath = $project->video_preview;
+  //     if ($oldVideoPreviewPath) {
+  //       $this->deleteFileFromStorage($oldVideoPreviewPath);
+  //     }
+  //     $videoPreviewPath = $this->handleUpload($request->file('video_preview'), 'videos');
+  //     $fieldsToUpdate['video_preview'] = $videoPreviewPath;
+  //   }
+
+  //   if ($request->has('cover_picture')) {
+  //     $oldCoverPicturePath = $project->cover_picture;
+  //     if ($oldCoverPicturePath) {
+  //       $this->deleteFileFromStorage($oldCoverPicturePath);
+  //     }
+  //     $coverPicturePath = $this->handleUpload($request->file('cover_picture'), 'cover_pictures');
+  //     $fieldsToUpdate['cover_picture'] = $coverPicturePath;
+  //   }
+
+  //   if ($request->has('images')) {
+  //     foreach ($project->images as $image) {
+  //       $oldImagePath = $image->image_path;
+  //       if ($oldImagePath) {
+  //         $this->deleteFileFromStorage($oldImagePath);
+  //       }
+  //       $image->delete();
+  //     }
+
+  //     foreach ($request->file('images') as $image) {
+  //       $imagePath = $this->handleUpload($image, 'project_images');
+  //       $projectImage = new ProjectImage(['image_path' => $imagePath]);
+  //       $projectImage->project_id = $project->id;
+  //       $projectImage->save();
+  //     }
+  //   }
+
+  //   $project->update($fieldsToUpdate);
+
+  //   return response()->json(['message' => 'Project updated successfully'], Response::HTTP_OK);
+  // }
 
   /**
    * Remove the specified resource from storage.
