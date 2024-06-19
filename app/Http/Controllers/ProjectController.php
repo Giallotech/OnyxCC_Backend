@@ -37,7 +37,6 @@ class ProjectController extends Controller {
     return response()->json($projects, 200);
   }
 
-
   public function show(Project $project) {
     $project = $project->load('images')->toArray();
 
@@ -281,75 +280,6 @@ class ProjectController extends Controller {
 
     return response()->json(['message' => 'Project updated successfully'], Response::HTTP_OK);
   }
-  // public function update(Request $request, Project $project) {
-  //   $request->validate([
-  //     'cover_picture' => 'nullable|image',
-  //     'executable_file' => 'nullable|file|mimes:zip',
-  //     'video_preview' => ['nullable', 'file', 'streamable'],
-  //     'title' => 'nullable|string|max:255',
-  //     'description' => 'nullable|string|max:1000',
-  //     'categories' => 'nullable|array',
-  //     'categories.*' => 'string|exists:categories,name',
-  //     'skills' => 'nullable|array',
-  //     'skills.*' => 'string|exists:skills,name',
-  //     'images' => 'nullable|array',
-  //     'images.*' => 'image',
-  //   ]);
-
-  //   if ($project->user_id !== auth()->id()) {
-  //     return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
-  //   }
-
-  //   $fieldsToUpdate = $request->only(['title', 'description']);
-
-  //   if ($request->has('executable_file')) {
-  //     $oldExecutableFilePath = $project->executable_file;
-  //     if ($oldExecutableFilePath) {
-  //       $this->deleteFileFromStorage($oldExecutableFilePath);
-  //     }
-  //     $executableFilePath = $this->handleUpload($request->file('executable_file'), 'executables');
-  //     $fieldsToUpdate['executable_file'] = $executableFilePath;
-  //   }
-
-  //   if ($request->has('video_preview')) {
-  //     $oldVideoPreviewPath = $project->video_preview;
-  //     if ($oldVideoPreviewPath) {
-  //       $this->deleteFileFromStorage($oldVideoPreviewPath);
-  //     }
-  //     $videoPreviewPath = $this->handleUpload($request->file('video_preview'), 'videos');
-  //     $fieldsToUpdate['video_preview'] = $videoPreviewPath;
-  //   }
-
-  //   if ($request->has('cover_picture')) {
-  //     $oldCoverPicturePath = $project->cover_picture;
-  //     if ($oldCoverPicturePath) {
-  //       $this->deleteFileFromStorage($oldCoverPicturePath);
-  //     }
-  //     $coverPicturePath = $this->handleUpload($request->file('cover_picture'), 'cover_pictures');
-  //     $fieldsToUpdate['cover_picture'] = $coverPicturePath;
-  //   }
-
-  //   if ($request->has('images')) {
-  //     foreach ($project->images as $image) {
-  //       $oldImagePath = $image->image_path;
-  //       if ($oldImagePath) {
-  //         $this->deleteFileFromStorage($oldImagePath);
-  //       }
-  //       $image->delete();
-  //     }
-
-  //     foreach ($request->file('images') as $image) {
-  //       $imagePath = $this->handleUpload($image, 'project_images');
-  //       $projectImage = new ProjectImage(['image_path' => $imagePath]);
-  //       $projectImage->project_id = $project->id;
-  //       $projectImage->save();
-  //     }
-  //   }
-
-  //   $project->update($fieldsToUpdate);
-
-  //   return response()->json(['message' => 'Project updated successfully'], Response::HTTP_OK);
-  // }
 
   /**
    * Remove the specified resource from storage.
