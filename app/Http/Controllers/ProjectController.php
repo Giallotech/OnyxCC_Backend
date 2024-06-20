@@ -16,7 +16,7 @@ class ProjectController extends Controller {
    * Display a listing of the resource.
    */
   public function index() {
-    $projects = Project::with('images')->get()->toArray();
+    $projects = Project::with('images', 'skills', 'categories')->get()->toArray();
 
     $baseUrl = app()->environment('production') ?
       'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
@@ -38,7 +38,7 @@ class ProjectController extends Controller {
   }
 
   public function show(Project $project) {
-    $project = $project->load('images')->toArray();
+    $project = $project->load('images', 'skills', 'categories')->toArray();
 
     $baseUrl = app()->environment('production') ?
       'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :

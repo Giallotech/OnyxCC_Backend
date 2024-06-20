@@ -15,7 +15,7 @@ class UserController extends Controller {
    * Display a listing of the resource.
    */
   public function index() {
-    $users = User::all()->toArray();
+    $users = User::with(['skills', 'categories'])->get()->toArray();
 
     $baseUrl = app()->environment('production') ?
       'https://' . config('filesystems.disks.s3.bucket') . '.s3.' . config('filesystems.disks.s3.region') . '.amazonaws.com/' :
@@ -32,6 +32,8 @@ class UserController extends Controller {
    * Display the specified resource.
    */
   public function show(User $user) {
+    $user->load('skills', 'categories');
+
     $user = $user->toArray();
 
     $baseUrl = app()->environment('production') ?
@@ -45,7 +47,6 @@ class UserController extends Controller {
   /**
    * Update the specified resource in storage.
    */
-
   public function update(Request $request, User $user) {
     // Check if the currently authenticated user can update the given user
     if ($request->user()->cannot('update', $user)) {
