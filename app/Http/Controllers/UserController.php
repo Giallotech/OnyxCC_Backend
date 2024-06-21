@@ -55,16 +55,6 @@ class UserController extends Controller {
 
     $oldImageKey = $user->profile_picture;
 
-    if ($oldImageKey) {
-      if (app()->environment('production')) {
-        // Delete the old image from the S3 bucket
-        Storage::disk('s3')->delete($oldImageKey);
-      } else {
-        // Delete the old image from local storage
-        Storage::disk('public')->delete($oldImageKey);
-      }
-    }
-
     // We apply the validation rule for profile_picture based on whether the user already has a profile picture
     $profilePictureRule = $user->profile_picture ? 'sometimes|image|mimes:jpeg,png,jpg|max:2048' : 'required|image|mimes:jpeg,png,jpg|max:2048';
 
@@ -95,6 +85,15 @@ class UserController extends Controller {
 
     // Handle the profile picture upload
     if ($request->hasFile('profile_picture')) {
+      if ($oldImageKey) {
+        if (app()->environment('production')) {
+          // Delete the old image from the S3 bucket
+          Storage::disk('s3')->delete($oldImageKey);
+        } else {
+          // Delete the old image from local storage
+          Storage::disk('public')->delete($oldImageKey);
+        }
+      }
       $image = $request->file('profile_picture');
       $imageName = $image->hashName();
 
