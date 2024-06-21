@@ -132,7 +132,7 @@ class ProjectController extends Controller {
     }
 
     $validateRules = [
-      'cover_picture' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+      'cover_picture' => 'required|image|mimes:jpeg,png,jpg,webp,avif|max:2048',
       'executable_file' => 'nullable|file|mimes:zip',
       'video_preview' => ['nullable', 'file', 'streamable'],
       'title' => 'required|string|max:255',
@@ -140,7 +140,7 @@ class ProjectController extends Controller {
       'categories' => 'required|array',
       'skills' => 'required|array',
       'images' => 'required|array',
-      'images.*' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+      'images.*' => 'required|image|mimes:jpeg,png,jpg,webp,avif|max:2048',
     ];
 
     $request->validate($validateRules);
@@ -194,7 +194,7 @@ class ProjectController extends Controller {
    */
   public function update(Request $request, Project $project) {
     $request->validate([
-      'cover_picture' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+      'cover_picture' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:2048',
       'executable_file' => 'nullable|file|mimes:zip',
       'video_preview' => ['nullable', 'file', 'streamable'],
       'title' => 'nullable|string|max:255',
@@ -204,7 +204,7 @@ class ProjectController extends Controller {
       'skills' => 'nullable|array',
       'skills.*' => 'string',
       'images' => 'nullable|array',
-      'images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+      'images.*' => 'image|mimes:jpeg,png,jpg,webp,avif|max:2048',
     ]);
 
     if ($project->user_id !== auth()->id()) {
