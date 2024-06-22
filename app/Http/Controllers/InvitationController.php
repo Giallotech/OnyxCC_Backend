@@ -20,7 +20,7 @@ class InvitationController extends Controller {
     $invitation = new Invitation;
     $invitation->email = $request->email;
     $invitation->token = Str::random(32); // Generate a random token.
-    $invitation->status = 'pending';
+    $invitation->status = 'Pending';
     $invitation->save();
 
     return response($invitation, Response::HTTP_CREATED);

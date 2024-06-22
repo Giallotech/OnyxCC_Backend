@@ -41,7 +41,7 @@ class RegisterController extends Controller {
         }
 
         if ($request->has('token') && $request->token !== '') {
-          $invitation->status = 'accepted';
+          $invitation->status = 'Approved';
           $invitation->save();
         }
       }
