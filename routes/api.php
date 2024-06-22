@@ -19,9 +19,9 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::post('/logout', LogoutController::class);
 
   // Admin routes
-  Route::post('/admin/invitations/{invitation}/approve-and-send', [InvitationController::class, 'approveAndSend']);
+  Route::post('/admin/invitations/approve-and-send/{invitation}', [InvitationController::class, 'approveAndSend']);
+  Route::delete('/admin/invitations/decline/{invitation}', [InvitationController::class, 'decline']);
   Route::get('/admin/invitations', [InvitationController::class, 'index']);
-  Route::delete('/admin/invitations/{invitation}/decline', [InvitationController::class, 'decline']);
 
   Route::apiResource('users', UserController::class)->except('index', 'show');
 
