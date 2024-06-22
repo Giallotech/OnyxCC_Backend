@@ -39,6 +39,9 @@ class InvitationController extends Controller {
       ], Response::HTTP_BAD_REQUEST);
     }
 
+    // Delete the invitation from the database.
+    // $invitation->delete();
+
     // Approve the invitation.
     $invitation->status = 'Approved';
     $invitation->approved_by_user_id = Auth::id();
@@ -70,7 +73,11 @@ class InvitationController extends Controller {
     });
 
     // Delete the invitation from the database.
-    $invitation->delete();
+    // $invitation->delete();
+
+    $invitation->status = 'Declined';
+    $invitation->declined_by_user_id = Auth::id();
+    $invitation->save();
 
     return response()->json(['message' => 'Invitation declined, user notified, and invitation deleted.'], Response::HTTP_OK);
   }
