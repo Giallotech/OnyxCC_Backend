@@ -36,7 +36,7 @@ class RegisterController extends Controller {
 
         // Check if the invitation token is valid.
         $invitation = Invitation::where('token', $request->token)->first();
-        if (!$invitation || $invitation->status !== 'approved') {
+        if (!$invitation || $invitation->status !== 'Approved') {
           return response()->json(['message' => 'Invalid invitation token.'], Response::HTTP_BAD_REQUEST);
         }
 

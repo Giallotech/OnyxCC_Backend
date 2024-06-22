@@ -33,14 +33,14 @@ class InvitationController extends Controller {
     }
 
     // Check if the invitation is already approved.
-    if ($invitation->status === 'approved') {
+    if ($invitation->status === 'Approved') {
       return response()->json([
         'message' => 'This invitation is already approved.',
       ], Response::HTTP_BAD_REQUEST);
     }
 
     // Approve the invitation.
-    $invitation->status = 'approved';
+    $invitation->status = 'Approved';
     $invitation->approved_by_user_id = Auth::id();
     $invitation->save();
 
