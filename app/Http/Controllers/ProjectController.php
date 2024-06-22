@@ -45,8 +45,13 @@ class ProjectController extends Controller {
       url('/storage') . '/';
 
     $project['cover_picture'] = $baseUrl . $project['cover_picture'];
-    $project['executable_file'] = $baseUrl . $project['executable_file'];
-    $project['video_preview'] = $baseUrl . $project['video_preview'];
+
+    if ($project['executable_file']) {
+      $project['executable_file'] = $baseUrl . $project['executable_file'];
+    }
+    if ($project['video_preview']) {
+      $project['video_preview'] = $baseUrl . $project['video_preview'];
+    }
 
     if (isset($project['images'])) {
       foreach ($project['images'] as &$image) {

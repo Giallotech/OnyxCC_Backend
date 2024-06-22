@@ -39,13 +39,8 @@ class UserController extends Controller {
     $baseUrl = app()->environment('production') ?
       'https://' . rtrim(config('filesystems.disks.s3.bucket'), '/') . '.s3.' . rtrim(config('filesystems.disks.s3.region'), '/') . '.amazonaws.com/' : url('/storage') . '/';
 
-    // Check if 'profile_picture' is not empty before appending to baseUrl
-    if (!empty($user['profile_picture'])) {
+    if ($user['profile_picture']) {
       $user['profile_picture'] = $baseUrl . $user['profile_picture'];
-    } else {
-      // Handle the case where there is no profile picture
-      // For example, set to null or a default image URL
-      $user['profile_picture'] = null;
     }
 
     return response()->json($user);
