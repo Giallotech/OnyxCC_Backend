@@ -16,14 +16,17 @@ class InvitationController extends Controller {
       'email' => 'required|email|unique:invitations'
     ]);
 
-    // Create a new invitation.
-    $invitation = new Invitation;
-    $invitation->email = $request->email;
-    $invitation->token = Str::random(32); // Generate a random token.
-    $invitation->status = 'Pending';
-    $invitation->save();
+    try {
+      $invitation = new Invitation;
+      $invitation->email = $request->email;
+      $invitation->token = Str::random(32); // Generate a random token.
+      $invitation->status = 'Pending';
+      $invitation->save();
 
-    return response($invitation, Response::HTTP_CREATED);
+      return response($invitation, Response::HTTP_CREATED);
+    } catch (\Exception $e) {
+      return response()->json(['message' => 'Failed to create invitation.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
   }
 
   public function approveAndSend(Invitation $invitation, Request $request) {
@@ -39,15 +42,14 @@ class InvitationController extends Controller {
       ], Response::HTTP_BAD_REQUEST);
     }
 
-    // Delete the invitation from the database.
-    // $invitation->delete();
-
     // Approve the invitation.
     $invitation->status = 'Approved';
     $invitation->approved_by_user_id = Auth::id();
     $invitation->save();
 
-    // Send the invitation.
+    // Delete the invitation from the database.
+    // $invitation->delete();
+
     // This URL will be sent in the email to the invited user, and it will redirect them to the registration page where they can create an account.
     $url = env('FRONTEND_APP_URL') . "/register?token={$invitation->token}";
 
@@ -72,12 +74,13 @@ class InvitationController extends Controller {
         ->subject('Invitation Declined');
     });
 
-    // Delete the invitation from the database.
-    // $invitation->delete();
 
     $invitation->status = 'Declined';
     $invitation->declined_by_user_id = Auth::id();
     $invitation->save();
+
+    // Delete the invitation from the database.
+    // $invitation->delete();
 
     return response()->json(['message' => 'Invitation declined, user notified, and invitation deleted.'], Response::HTTP_OK);
   }
