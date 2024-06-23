@@ -48,7 +48,7 @@ class InvitationController extends Controller {
     $invitation->save();
 
     // Delete the invitation from the database.
-    $invitation->delete();
+    // $invitation->delete();
 
     // This URL will be sent in the email to the invited user, and it will redirect them to the registration page where they can create an account.
     $url = env('FRONTEND_APP_URL') . "/register?token={$invitation->token}";
@@ -77,7 +77,7 @@ class InvitationController extends Controller {
 
     $invitation->status = 'Declined';
     $invitation->declined_by_user_id = Auth::id();
-    $invitation->save();
+    // $invitation->save();
 
     // Delete the invitation from the database.
     $invitation->delete();
