@@ -144,8 +144,10 @@ class ProjectController extends Controller {
       'description' => 'required|string|max:1000',
       'categories' => 'required|array',
       'skills' => 'required|array',
-      'images' => 'required|array',
-      'images.*' => 'required|image|mimes:jpeg,png,jpg,webp,avif|max:2048',
+      // 'images' => 'required|array',
+      // 'images.*' => 'required|image|mimes:jpeg,png,jpg,webp,avif|max:2048',
+      'images' => 'sometimes|array',
+      'images.*' => 'image|mimes:jpeg,png,jpg,webp,avif|max:2048',
     ];
 
     $request->validate($validateRules);
