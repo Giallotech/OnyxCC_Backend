@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -24,8 +23,24 @@ class UserFactory extends Factory {
    * @return array<string, mixed>
    */
   public function definition(): array {
-    $profilePictures = Storage::disk('public')->files('profile_pictures');
-    $randomProfilePicture = $profilePictures ? 'profile_pictures/' . basename(Arr::random($profilePictures)) : null;
+    global $profilePictures;
+    if (!is_array($profilePictures)) {
+      $profilePictures = [
+        'profile_pictures/uifaces-popular-image-1.jpg',
+        'profile_pictures/uifaces-popular-image-2.jpg',
+        'profile_pictures/uifaces-popular-image-3.jpg',
+        'profile_pictures/uifaces-popular-image-4.jpg',
+        'profile_pictures/uifaces-popular-image-5.jpg',
+        'profile_pictures/uifaces-popular-image-6.jpg',
+      ];
+    }
+
+    static $pictureIndex = 0;
+
+    $randomProfilePicture = !empty($profilePictures) ? 'profile_pictures/' . basename($profilePictures[$pictureIndex]) : null;
+    if (!empty($profilePictures)) {
+      $pictureIndex = ($pictureIndex + 1) % count($profilePictures); // Move to the next picture, loop back if at the end
+    }
 
     return [
       'username' => fake()->unique()->userName(),
@@ -36,33 +51,30 @@ class UserFactory extends Factory {
       'password' => static::$password ??= Hash::make('password'),
       'role' => 'user',
       'description' => fake()->text(350),
-      'remember_token' => Str::random(10),
     ];
   }
 
   public function configure() {
     return $this->afterCreating(function ($user) {
-      // Example skills and categories as words
+      // Existing skill association logic
       $skills = ['PHP', 'Laravel', 'VueJS', 'React'];
-      $categories = ['Web Development', 'Frontend', 'Backend'];
-
-      // Randomly select skills and categories for each user
       $selectedSkills = Arr::random($skills, rand(1, count($skills)));
-      $selectedCategories = Arr::random($categories, rand(1, count($categories)));
-
-      // Insert selected skills into skill_user table
-      foreach ($selectedSkills as $skill) {
+      $skillIds = \App\Models\Skill::whereIn('name', $selectedSkills)->pluck('id');
+      foreach ($skillIds as $skillId) {
         DB::table('skill_user')->insert([
           'user_id' => $user->id,
-          'skill' => $skill,
+          'skill_id' => $skillId,
         ]);
       }
 
-      // Insert selected categories into category_user table
-      foreach ($selectedCategories as $category) {
+      // Add logic for associating categories
+      $categories = ['Web Development', 'Frontend', 'Backend', 'Full Stack']; // Example categories
+      $selectedCategories = Arr::random($categories, rand(1, count($categories)));
+      $categoryIds = \App\Models\Category::whereIn('name', $selectedCategories)->pluck('id'); // Assuming Category model exists
+      foreach ($categoryIds as $categoryId) {
         DB::table('category_user')->insert([
           'user_id' => $user->id,
-          'category' => $category,
+          'category_id' => $categoryId,
         ]);
       }
     });
