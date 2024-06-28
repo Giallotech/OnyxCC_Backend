@@ -45,7 +45,7 @@ class UserFactory extends Factory {
     return [
       'username' => fake()->unique()->userName(),
       'profile_picture' => $randomProfilePicture,
-      'name' => fake()->name(),
+      'name' => collect(explode(' ', fake()->name()))->take(2)->join(' '),
       'email' => fake()->unique()->safeEmail(),
       'email_verified_at' => now(),
       'password' => static::$password ??= Hash::make('password'),
