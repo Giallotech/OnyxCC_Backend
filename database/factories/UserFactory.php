@@ -50,7 +50,7 @@ class UserFactory extends Factory {
       'email_verified_at' => now(),
       'password' => static::$password ??= Hash::make('password'),
       'role' => 'user',
-      'description' => fake()->text(350),
+      'description' => fake()->text(500),
     ];
   }
 

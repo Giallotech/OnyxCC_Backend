@@ -11,8 +11,10 @@ use Illuminate\Database\Seeder;
 class UserSeeder extends Seeder {
   public function run() {
     User::factory()->count(6)->create()->each(function ($user) {
-      // Associate projects
-      $user->projects()->save(Project::factory()->create(['user_id' => $user->id]));
+      // Create and associate multiple projects for each user
+      for ($i = 0; $i < 7; $i++) { // Loop to create 3 projects per user
+        $user->projects()->save(Project::factory()->create(['user_id' => $user->id]));
+      }
 
       // Associate categories
       $categories = Category::inRandomOrder()->take(rand(1, 3))->get(); // Adjust the numbers as needed
@@ -23,4 +25,18 @@ class UserSeeder extends Seeder {
       $user->skills()->attach($skills);
     });
   }
+  // public function run() {
+  //   User::factory()->count(6)->create()->each(function ($user) {
+  //     // Associate projects
+  //     $user->projects()->save(Project::factory()->create(['user_id' => $user->id]));
+
+  //     // Associate categories
+  //     $categories = Category::inRandomOrder()->take(rand(1, 3))->get(); // Adjust the numbers as needed
+  //     $user->categories()->attach($categories);
+
+  //     // Associate skills
+  //     $skills = Skill::inRandomOrder()->take(rand(1, 5))->get(); // Adjust the numbers as needed
+  //     $user->skills()->attach($skills);
+  //   });
+  // }
 }

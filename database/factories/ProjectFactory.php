@@ -32,7 +32,7 @@ class ProjectFactory extends Factory {
     return [
       'cover_picture' => $randomCoverPicture,
       'title' => fake()->sentence(2),
-      'description' => fake()->text(350),
+      'description' => fake()->text(500),
     ];
   }
 
