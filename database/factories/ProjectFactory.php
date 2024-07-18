@@ -39,7 +39,13 @@ class ProjectFactory extends Factory {
   public function configure() {
     return $this->afterCreating(function ($project) {
       $skills = ['PHP', 'Laravel', 'VueJS', 'React'];
-      $categories = ['Web Development', 'Frontend', 'Backend'];
+      $categories = [
+        'See All',
+        'Webdesign & Development',
+        'Games Programming',
+        'Game Art',
+        'Audio Engineering',
+      ];
 
       // Ensure skills exist in the database before associating them with a project
       foreach ($skills as $skill) {
