@@ -101,17 +101,17 @@ class UserController extends Controller {
 
       if (app()->environment('production')) {
         // Use the Storage facade to store the image in the S3 bucket
-        $imageKey = Storage::disk('s3')->putFile('profile_pictures', $image, 'public');
+        $imagePath = Storage::disk('s3')->putFile('profile_pictures', $image, 'public');
       } else {
         // Store the image in the profile_picture storage directory
         $image->storeAs('profile_pictures', $imageName, 'public');
 
         // Generate the key for the image
-        $imageKey = 'profile_pictures/' . $imageName;
+        $imagePath = 'profile_pictures/' . $imageName;
       }
 
       // Save the key of the image to the user's profile
-      $user->profile_picture = $imageKey;
+      $user->profile_picture = $imagePath;
     }
 
     // Sync the user's categories and skills if they are present in the validated data
